@@ -267,12 +267,6 @@ function isString(value) {
 }
 
 
-console.log(
-
-
-);
-
-
 /**
  * Returns playid card id.
  *
