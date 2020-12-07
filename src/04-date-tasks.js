@@ -34,8 +34,8 @@ function parseDataFromRfc2822(value) {
  *    '2016-01-19T16:07:37+00:00'    => Date()
  *    '2016-01-19T08:07:37Z' => Date()
  */
-function parseDataFromIso8601(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromIso8601(value) {
+  return Date.parse(value);
 }
 
 
@@ -53,8 +53,16 @@ function parseDataFromIso8601(/* value */) {
  *    Date(2012,1,1)    => true
  *    Date(2015,1,1)    => false
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  if (!(date.getFullYear() % 400)) {
+    return true;
+  } if (!(date.getFullYear() % 100)) {
+    return false;
+  } if (!(date.getFullYear() % 4)) {
+    return true;
+  }
+
+  return false;
 }
 
 
@@ -73,10 +81,11 @@ function isLeapYear(/* date */) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,10,0,0,250)     => "00:00:00.250"
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
-function timeSpanToString(/* startDate, endDate */) {
-  throw new Error('Not implemented');
-}
+function timeSpanToString(startDate, endDate) {
+  const res = (new Date(endDate - startDate)).toISOString();
 
+  return res.substring(res.length - 13, res.length - 1);
+}
 
 /**
  * Returns the angle (in radians) between the hands of an analog clock
@@ -94,8 +103,15 @@ function timeSpanToString(/* startDate, endDate */) {
  *    Date.UTC(2016,3,5,18, 0) => Math.PI
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
-function angleBetweenClockHands(/* date */) {
-  throw new Error('Not implemented');
+function angleBetweenClockHands(date) {
+  const h = date.getUTCHours();
+  const m = date.getUTCMinutes();
+
+  const oH = (60 * (h % 12) + m) * 0.5;
+  const oM = 6 * m;
+  const res = (Math.abs(oH - oM) * Math.PI) / 180;
+
+  return res > Math.PI ? res - Math.PI : res;
 }
 
 
