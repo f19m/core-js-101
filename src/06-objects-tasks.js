@@ -20,8 +20,10 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  this.getArea = () => this.width * this.height;
 }
 
 
@@ -35,8 +37,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +53,9 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const obj = JSON.parse(json);
+  return new proto.constructor(...Object.values(obj));
 }
 
 
@@ -111,34 +114,112 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+
+  throwErr(param) {
+    let msg = 'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element';
+    if (param === 1) {
+      msg = 'Element, id and pseudo-element should not occur more then one time inside the selector';
+    }
+    console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${this.selector}`);
+    throw new Error(msg);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  create(value) {
+    let that = {};
+    if (this.selector) {
+      this.selector += value;
+      that = this;
+    } else {
+      that.selector = value;
+      //Object.assign(that, cssSelectorBuilder);
+      that.__proto__ = cssSelectorBuilder;
+
+      console.log(`that + css =======================`);
+      console.log(that);
+      console.log(cssSelectorBuilder);
+    }
+ 
+
+    return that;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+
+  element(value) {
+    // if (this.selector) this.throwErr();
+    if (this.selector && this.el) this.throwErr(1);
+    this.el = true;
+
+    return this.create(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    // console.log(cssSelectorBuilder)
+    // console.log(this)
+    if (this.selector && this.selector.match(/\.|::/)) this.throwErr();
+    if (this.selector && this.customId) this.throwErr(1);
+    this.customId = true;
+    return this.create(`#${value}`);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    if (this.selector && this.selector.indexOf('[') > -1) this.throwErr();
+    return this.create(`.${value}`);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  attr(attr) {
+    if (this.selector && this.selector.indexOf(':') > -1) this.throwErr();
+    // this.selector = `${this.selector}[${attr}]`;
+    return this.create(`[${attr}]`);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    if (this.selector && this.selector.indexOf('::') > -1) this.throwErr();
+
+    // this.selector = `${this.selector}:${value}`;
+    return this.create(`:${value}`);
+  },
+
+  pseudoElement(value) {
+    if (this.selector && this.pseudoElement) this.throwErr(1);
+    this.pseudoElement = true;
+    // this.selector = `${this.selector}::${value}`;
+    return this.create(`::${value}`);
+  },
+
+  combine(selector1, combinator, selector2) {
+    const newObj = {};
+    newObj.selector = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+
+    return Object.assign(newObj, cssSelectorBuilder);
+  },
+
+  stringify() {
+    return this.selector;
   },
 };
+
+ const builder = cssSelectorBuilder;
+ builder.id('nav-bar').stringify();
+builder.element('li').id('main').stringify()
+// builder.element('div').stringify();
+// builder.element('div').stringify();
+
+// const builder = cssSelectorBuilder;
+// console.log(
+//   builder.combine(
+//           builder.element('div').id('main').class('container').class('draggable'),
+//           '+',
+//           builder.combine(
+//               builder.element('table').id('data'),
+//               '~',
+//                builder.combine(
+//                    builder.element('tr').pseudoClass('nth-of-type(even)'),
+//                    ' ',
+//                    builder.element('td').pseudoClass('nth-of-type(even)')
+//                )
+//           )
+//       ).stringify()
+// )
 
 
 module.exports = {
