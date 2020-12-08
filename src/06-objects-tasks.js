@@ -120,7 +120,8 @@ const cssSelectorBuilder = {
     if (param === 1) {
       msg = 'Element, id and pseudo-element should not occur more then one time inside the selector';
     }
-    console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${this.selector}`);
+    // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${this.selector}`);
+    // console.log(this);
     throw new Error(msg);
   },
 
@@ -130,35 +131,42 @@ const cssSelectorBuilder = {
       this.selector += value;
       that = this;
     } else {
-      that.selector = value;
-      //Object.assign(that, cssSelectorBuilder);
-      that.__proto__ = cssSelectorBuilder;
-
-      console.log(`that + css =======================`);
-      console.log(that);
-      console.log(cssSelectorBuilder);
+      // Object.assign(that, cssSelectorBuilder);
+      // that.__proto__ = cssSelectorBuilder;
+      // that = Object.getPrototypeOf(cssSelectorBuilder);
+      that = { __proto__: cssSelectorBuilder, selector: value };
+      // that.selector = value;
+      // console.log(`that + css =======================`);
+      // console.log(that);
+      // console.log(this);
     }
- 
-
+    // console.log('that + css =======================');
+    // console.log(that.selector);
     return that;
   },
 
 
   element(value) {
-    // if (this.selector) this.throwErr();
-    if (this.selector && this.el) this.throwErr(1);
-    this.el = true;
+    if (this.el) this.throwErr(1);
+    if (this.selector) this.throwErr();
 
-    return this.create(value);
+
+    const item = this.create(value);
+    item.el = true;
+    return item;
   },
 
   id(value) {
     // console.log(cssSelectorBuilder)
-    // console.log(this)
     if (this.selector && this.selector.match(/\.|::/)) this.throwErr();
     if (this.selector && this.customId) this.throwErr(1);
-    this.customId = true;
-    return this.create(`#${value}`);
+    const item = this.create(`#${value}`);
+
+    item.customId = true;
+
+    // console.log(item);
+
+    return item;
   },
 
   class(value) {
@@ -180,10 +188,15 @@ const cssSelectorBuilder = {
   },
 
   pseudoElement(value) {
-    if (this.selector && this.pseudoElement) this.throwErr(1);
-    this.pseudoElement = true;
-    // this.selector = `${this.selector}::${value}`;
-    return this.create(`::${value}`);
+    // console.log(`pseudoElement - ${value}`);
+    // console.log(this);
+    if (this.selector && this.pl) {
+      this.throwErr(1);
+    }
+    // console.log('creating');
+    const item = this.create(`::${value}`);
+    item.pl = true;
+    return item;
   },
 
   combine(selector1, combinator, selector2) {
@@ -194,13 +207,56 @@ const cssSelectorBuilder = {
   },
 
   stringify() {
+    // console.log(this);
     return this.selector;
   },
 };
 
- const builder = cssSelectorBuilder;
- builder.id('nav-bar').stringify();
-builder.element('li').id('main').stringify()
+// const builder = cssSelectorBuilder;
+// builder.element('table').element('div')
+
+//   builder.class('main').id('id')
+//   builder.attr('href').class('download-link')
+//   builder.pseudoClass('hover').attr('title')
+//   builder.pseudoElement('after').pseudoClass('valid')
+//   builder.pseudoElement('after').id('id')
+
+// console.log(
+//   builder.element('div').stringify() ,
+//   'div'
+// );
+// console.log(
+//   builder.id('nav-bar').stringify() ===
+//   '#nav-bar'
+// );
+// console.log(
+//   builder.class('warning').stringify()===
+//   '.warning'
+// );
+// console.log(
+//   builder.attr('href$=".png"').stringify()===
+//   '[href$=".png"]'
+// );
+// console.log(
+//   builder.pseudoClass('invalid').stringify()===
+//   ':invalid'
+// );
+// console.log(
+//   builder.pseudoElement('first-letter').stringify()===
+//   '::first-letter'
+// );
+
+// // Test complex selectors
+// console.log(
+//   builder.element('li').id('main').stringify()===
+//   'li#main'
+// );
+// console.log(
+//   builder.element('div').class('container').stringify()===
+//   'div.container'
+// );
+
+
 // builder.element('div').stringify();
 // builder.element('div').stringify();
 
