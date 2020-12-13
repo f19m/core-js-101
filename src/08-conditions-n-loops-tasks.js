@@ -123,7 +123,7 @@ function doRectanglesOverlap(/* rect1, rect2 */) {
 
 
 /**
- * Returns true, if point lies inside the circle, otherwise false.
+ * Returns true, if point lies inside the circle (border excluded),otherwise false.
  * Circle is an object of
  *  {
  *     center: {
